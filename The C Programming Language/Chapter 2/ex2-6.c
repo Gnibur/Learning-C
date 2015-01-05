@@ -5,12 +5,11 @@
 */
 
 #include <stdio.h>
-#include <math.h>
 
 int setbits(int x, int p, int n, int y)
 {
   /* Temporary integer which has the n LSD set */
-  int nBitsSet = pow(2, n) - 1;
+  int nBitsSet = (1<<n) - 1;
 
   /* clear n bits from pos p in x */
   x &= ~(nBitsSet<<p);

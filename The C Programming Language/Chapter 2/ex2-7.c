@@ -3,7 +3,6 @@
    The others remain unchanged. */
 
 #include <stdio.h>
-#include <math.h>
 
 int getBit(int x, int p)
 {
@@ -39,7 +38,7 @@ int main(int argc, char *argv[])
   printf("After\n");
 
   /* pow(2,n)-1 returns a value which has the n LSB set.*/
-  int nBitsSet = pow(2,n)-1;
+  int nBitsSet = (1<<n)-1;
 
   /* XOR with 1 inverts the bits. */
   x ^= nBitsSet<<p;

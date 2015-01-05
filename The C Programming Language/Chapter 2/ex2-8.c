@@ -1,13 +1,12 @@
 /* rightrot(x,n). Rotates x n bits to the right. */
 
 #include <stdio.h>
-#include <math.h>
-
 
 int getBit(int x, int p)
 {
   return (x>>p)&1;
 }
+
 void printBinary(int x)
 {
   int i;
@@ -34,7 +33,7 @@ int main(int argc, char *argv[])
 
 
   /* Has the n LSB set */
-  int nBitsSet = pow(2,n)-1;
+  int nBitsSet = (1<<n)-1;
 
   int shiftedOut = x & nBitsSet;
   x = x>>n;	
