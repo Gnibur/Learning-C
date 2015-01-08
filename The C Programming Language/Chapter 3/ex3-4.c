@@ -1,19 +1,9 @@
-/* itoa. Also handles the most negative number. 
-   Given solution does not handle the most negative number when using two's complement because of n = -n, which inverts to the positive number. In two's complement, there is one more negative number than posivite numbers(not counting 0). 
-*/
+/* itoa. Also handles the most negative number. */
 
 #include <stdio.h>
+#include <string.h>
 
 #define BUFF_SIZE 100
-
-
-size_t strlen(const char *s)
-{
-  int i;
-  for (i = 0; s[i] != '\0'; i++)
-    ;
-  return i;
-}
 
 void swap(char *a, char *b)
 {
@@ -38,15 +28,17 @@ void itoa(int n, char s[])
     return;
   }
 
+  unsigned char isNegative = (n<0) ? 1 : 0;
+
   int i;
   for (i=0; n != 0; i++, n/=10){
-    if (n < 0)
+    if (isNegative)
       s[i] = '0' - (n%10);
     else
       s[i] = '0' + (n%10);
   }
 
-  if (n < 0)
+  if (isNegative)
     s[i++] = '-';
 
   s[i] = '\0';
