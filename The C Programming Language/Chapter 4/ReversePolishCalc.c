@@ -1,11 +1,36 @@
+/* Reverse Polish calculator. Supported operators are +, -, *, /, %, exp, pow, sin, and cos.
+   Other general commands are: 
+    - top: gets the top of the value stack
+    - swap: swaps the two top elements
+    - stack: prints the whole value stack
+    - clear: clears the stack
+
+*/
+
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <stdlib.h> /* using atof */
+#include <math.h>   /* for math functions like sin, cos, exp, pow */
+#include <string.h> /* for strcmp */
 
-#define MAXOP   100 /* max size of operand or operator */
-#define NUMBER  '0' /* signal that a number was found */
+#define MAXOP   100            /* max size of operand or operator */
+#define MAX_VARIABLE_LENGTH 32 /* max length of variable name */
 
-/* operator stack */
+
+enum commands {
+  NUMBER,
+  GET_TOP,
+  SWAP_TOP,
+  GET_STACK,
+  CLEAR,
+  SIN,
+  COS,
+  EXP,
+  POW,
+};
+
+
+/* value stack */
 int sp = 0;
 double val[MAXOP];
 
@@ -18,7 +43,7 @@ void printstack(void);
 int main(int argc, char *argv[])
 {
   int type;
-  double op2;
+  double op2, temp;
   char s[MAXOP];
 
   while ((type = getop(s)) != EOF){
@@ -43,13 +68,42 @@ int main(int argc, char *argv[])
       else
 	printf("error: zero divisor\n");
       break;
-    case '\n': /* print result */
-      printf("\t%.8g\n", pop()); 
+    case '%':
+      op2 = pop();
+      if (op2 != 0.0)
+	push((int)pop() % (int)op2);
+      else 
+	printf("error: zero modulo\n");
       break;
-    case '?': /* print stack */
+    case SIN:
+      push(sin(pop()));
+      break;
+    case COS:
+      push(cos(pop()));
+      break;
+    case EXP:
+      push(exp(pop()));
+      break;
+    case POW:
+      op2 = pop();
+      push(pow(pop(), op2));
+      break;
+
+    case '\n': /* print result */
+    case GET_TOP:
+      if (sp > 0) 
+	printf("\tTop is now: %.8g\n", val[sp-1]);
+      break;
+    case SWAP_TOP:
+      temp = pop();
+      op2 = pop();
+      push(temp);
+      push(op2);
+      break;
+    case GET_STACK:
       printstack();
       break;
-    case '!': /* clear stack */
+    case CLEAR:
       sp = 0;
       break;
     default:
@@ -63,10 +117,35 @@ int main(int argc, char *argv[])
 int getop(char s[])
 {
   int i,c;
+
   while ((s[0] = c = getchar()) == ' ' || c == '\t')
     ;
- 
   s[1] = '\0';
+ 
+  if (isalpha(c)) { /* either variable or command */
+    
+    i = 0; 
+    while (isalnum(c) || c == '_') {
+      if (i < MAXOP)
+	s[i] = tolower(c);
+      c = getchar();
+      i++;
+    }
+    s[i] = '\0';
+
+    if (c != EOF)
+      ungetc(c, stdin);
+
+    if      (!strcmp(s, "sin"))   return SIN;
+    else if (!strcmp(s, "cos"))   return COS;
+    else if (!strcmp(s, "exp"))   return EXP;
+    else if (!strcmp(s, "pow"))   return POW;
+    else if (!strcmp(s, "clear")) return CLEAR;
+    else if (!strcmp(s, "top"))   return GET_TOP;
+    else if (!strcmp(s, "swap"))  return SWAP_TOP;
+    else if (!strcmp(s, "stack")) return GET_STACK;
+  }
+
   if (!isdigit(c) && c != '.')
     return c; /* operator, not a number */
   
@@ -74,14 +153,13 @@ int getop(char s[])
   if (isdigit(c)) /* collect integer part */
     while (isdigit(s[++i] = c = getchar()))
       ;
-
   if (c == '.')   /* collect fractional part */
     while (isdigit(s[++i] = c = getchar()))
       ;
-
   s[i] = '\0';
   if (c != EOF)
     ungetc(c, stdin);
+
   return NUMBER;
 }
 
