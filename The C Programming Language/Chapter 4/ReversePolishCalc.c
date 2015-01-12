@@ -4,9 +4,7 @@
     - swap: swaps the two top elements
     - stack: prints the whole value stack
     - clear: clears the stack
-
 */
-
 
 #include <stdio.h>
 #include <stdlib.h> /* using atof */
@@ -14,8 +12,6 @@
 #include <string.h> /* for strcmp */
 
 #define MAXOP   100            /* max size of operand or operator */
-#define MAX_VARIABLE_LENGTH 32 /* max length of variable name */
-
 
 enum commands {
   NUMBER,
@@ -34,10 +30,16 @@ enum commands {
 int sp = 0;
 double val[MAXOP];
 
-int getop(char []);
+/* pushes a value to the value stack */
 void push(double);
+/* pops a value from the value stack */
 double pop(void);
+/* prints the value stack */
 void printstack(void);
+
+
+/* returns the operand type and places it into the string */
+int getop(char s[]);
 
 
 int main(int argc, char *argv[])
@@ -157,7 +159,7 @@ int getop(char s[])
     while (isdigit(s[++i] = c = getchar()))
       ;
   s[i] = '\0';
-  if (c != EOF)
+  if (c != EOF) /* more operators to come */
     ungetc(c, stdin);
 
   return NUMBER;
