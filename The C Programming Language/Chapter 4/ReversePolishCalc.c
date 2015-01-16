@@ -1,4 +1,7 @@
-/* Reverse Polish calculator. Supported operators are +, -, *, /, %, exp, pow, sin, and cos.
+/* Reverse Polish calculator. Supported operators are +, -, *, /, %, !, exp, pow, sin, and cos.
+   Supports 26 variables, a-z, initialized to 0. 
+     Retrieving value: A B +, result of A + B is on top of stack 
+     Storing value:    8 A =, the value 8 is stored in A. 8 and A is removed from stack.
    Other general commands are: 
     - top: gets the top of the value stack
     - swap: swaps the two top elements
@@ -22,13 +25,19 @@ enum commands {
   SIN,
   COS,
   EXP,
-  POW
+  POW,
+  VARIABLE
 };
 
 
 /* value stack */
 int sp = 0;
-double val[MAXOP];
+double value[MAXOP];
+
+/* stores the last variable used to be able to assign a value. */
+char lastVariable;
+/* Stores the variables. Static initialization results in that they are initialized to 0 */
+double variables['z'-'a'+1];
 
 /* pushes a value to the value stack */
 void push(double);
@@ -44,7 +53,7 @@ int getop(char s[]);
 
 int main(int argc, char *argv[])
 {
-  int type, i;
+  int type;
   double op2, temp;
   char s[MAXOP];
 
@@ -106,10 +115,18 @@ int main(int argc, char *argv[])
       }
       break;
 
+    case VARIABLE:
+      push(variables[lastVariable-'a']);
+      break;
+    case '=':
+      pop();        /* ignore top of stack, which is the previous value of the variable */
+      variables[lastVariable-'a'] = pop();
+      break;
+     
     case '\n': /* print result */
     case GET_TOP:
       if (sp > 0) 
-	printf("\tTop is now: %.8g\n", val[sp-1]);
+	printf("\tTop is now: %.8g\n", value[sp-1]);
       break;
     case SWAP_TOP:
       temp = pop();
@@ -161,6 +178,10 @@ int getop(char s[])
     else if (!strcmp(s, "top"))   return GET_TOP;
     else if (!strcmp(s, "swap"))  return SWAP_TOP;
     else if (!strcmp(s, "stack")) return GET_STACK;
+    else if (s[0] >= 'a' && s[0] <= 'z') {
+      lastVariable = s[0];
+      return VARIABLE;
+    }
   }
 
   if (!isdigit(c) && c != '.')
@@ -183,7 +204,7 @@ int getop(char s[])
 void push(double f)
 {
   if (sp < MAXOP)
-    val[sp++] = f;
+    value[sp++] = f;
   else 
     printf("error: operator stack full, can't push %g\n", f);
 }
@@ -191,7 +212,7 @@ void push(double f)
 double pop()
 {
   if (sp > 0)
-    return val[--sp];
+    return value[--sp];
   else {
     printf("error: can't pop, stack is empty\n");
     return 0.0;
@@ -203,6 +224,6 @@ void printstack(void)
   int i;
   putchar('\t');
   for (i = 0; i < sp; i++)
-    printf("%g ", val[i]);
+    printf("%g ", value[i]);
   putchar('\n');
 }
