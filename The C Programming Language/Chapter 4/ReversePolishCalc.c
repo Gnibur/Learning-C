@@ -22,7 +22,7 @@ enum commands {
   SIN,
   COS,
   EXP,
-  POW,
+  POW
 };
 
 
@@ -44,7 +44,7 @@ int getop(char s[]);
 
 int main(int argc, char *argv[])
 {
-  int type;
+  int type, i;
   double op2, temp;
   char s[MAXOP];
 
@@ -89,6 +89,21 @@ int main(int argc, char *argv[])
     case POW:
       op2 = pop();
       push(pow(pop(), op2));
+      break;
+    case '!': /* factorial */
+      op2 = pop();
+      printf("factorial on %g\n", op2);
+      if (op2 == 0)
+	push(1.0);
+      else if (op2 < 0){
+	printf("error: factorial on negative number\n");
+	push(op2);
+      }
+      else {
+	for (temp = op2 - 1; temp > 0; temp--)
+	  op2 *= temp;
+	push(op2);
+      }
       break;
 
     case '\n': /* print result */
@@ -186,6 +201,7 @@ double pop()
 void printstack(void)
 {
   int i;
+  putchar('\t');
   for (i = 0; i < sp; i++)
     printf("%g ", val[i]);
   putchar('\n');
